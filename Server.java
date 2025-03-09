@@ -16,11 +16,13 @@ public class Server{
             String message;
             while ((message=in.readLine())!=null) {
                 System.out.println("Client: "+message);
+                if(message.equalsIgnoreCase("exit")){
+                    out.println("Goodbye!");
+                }
                 out.println("Server received: "+message);
             }
 
-            in.close();
-            out.close();
+            
             clientSocket.close();
             serverSocket.close();
         } catch (IOException e) {
