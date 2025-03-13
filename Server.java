@@ -16,13 +16,14 @@ public class Server{
             String message;
             while ((message=in.readLine())!=null) {
                 System.out.println("Client: "+message);
-                if(message.equalsIgnoreCase("exit")){
+                if(message.equalsIgnoreCase("Exit From the chat")){
                     out.println("Goodbye!");
+                    break;
                 }
-                out.println("Server received: "+message);
             }
 
-            
+            out.close();
+            in.close();
             clientSocket.close();
             serverSocket.close();
         } catch (IOException e) {

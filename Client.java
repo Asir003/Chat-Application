@@ -13,16 +13,23 @@ public class Client {
 
             String message;
             while(true){
+
             System.out.println("Enter message: ");
             message=userInput.readLine();
+
             if(message.equalsIgnoreCase("Exit")){
-                System.out.println("Exit From the chat");
+                out.println("Exit From the chat");
+                String serverResponse=in.readLine();
+                if(serverResponse != null)
+                System.out.println(serverResponse);    
                 break;
             }
             out.println(message);
-            String serverResponse=in.readLine();
             }
-            
+
+            out.close();
+            in.close();
+            userInput.close();
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
