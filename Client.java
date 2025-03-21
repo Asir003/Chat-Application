@@ -10,10 +10,11 @@ public class Client {
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader userInput=new BufferedReader(new InputStreamReader(System.in));
 
+            new ReadThread(in).start();
+
             String message;
             while(true){
-
-            System.out.println("Enter message: ");
+            System.out.println("You: ");
             message=userInput.readLine();
 
             if(message.equalsIgnoreCase("Exit")){
@@ -25,13 +26,30 @@ public class Client {
             }
             out.println(message);
             }
-
-            out.close();
-            in.close();
-            userInput.close();
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+}
+
+class ReadThread extends Thread{
+    private BufferedReader in;
+
+    public ReadThread(BufferedReader in){
+        this.in=in;
+    }
+
+    public void run(){
+        try{
+            String message;
+            while((message = in.readLine())!=null){
+                System.out.println("             "+ message);
+                System.out.println("You ");
+            }
+        }
+        catch(IOException e){
+            System.out.println("Error client");
         }
     }
 }
