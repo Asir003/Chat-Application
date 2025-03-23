@@ -10,11 +10,14 @@ public class Client {
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader userInput=new BufferedReader(new InputStreamReader(System.in));
 
+            System.out.print(in.readLine()+" ");
+            String name=userInput.readLine();
+            out.println(name);
+
             new ReadThread(in).start();
 
             String message;
             while(true){
-            System.out.println("You: ");
             message=userInput.readLine();
 
             if(message.equalsIgnoreCase("Exit")){
@@ -44,8 +47,8 @@ class ReadThread extends Thread{
         try{
             String message;
             while((message = in.readLine())!=null){
-                System.out.println("             "+ message);
-                System.out.println("You ");
+                System.out.println(message);
+                //System.out.println("You ");
             }
         }
         catch(IOException e){

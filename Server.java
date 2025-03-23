@@ -3,15 +3,16 @@ import java.io.*;
 import java.util.*;
 
 public class Server{
-    private static List<PrintWriter> clientWriters= new ArrayList<>();
+    private static List<ClientHandler> clientWriters= new ArrayList<>();
     public static void main(String[] args){
         try(ServerSocket serverSocket=new ServerSocket(12346)){
             System.out.println("Server started.Waiting for clients...");
-
+            
+            int k=1;
             while(true){
                 Socket clientSocket=serverSocket.accept();
-                System.out.println("Client connected.");
-
+                System.out.println("Client"+k+": "+"connected.");
+                k++;
                 new ClientHandler(clientSocket).start();
             }
 
@@ -23,6 +24,7 @@ public class Server{
             private Socket socket;
             private BufferedReader in;
             private PrintWriter out;
+            private String name;
 
             public ClientHandler(Socket socket){
                 this.socket=socket;
@@ -33,19 +35,20 @@ public class Server{
                     in=new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     out=new PrintWriter(socket.getOutputStream(), true);
 
+                    out.println("Enter your name: ");
+                    name=in.readLine();
+                    System.out.println(name + " joined the chat");
+
                     synchronized(clientWriters){
-                        clientWriters.add(out);
+                        clientWriters.add(this);
+                        broadcast(name +" joined the chat ","Server");
                     }
 
                     String message;
                     while ((message=in.readLine())!=null) {
-                        System.out.println("Client: "+message);
+                        System.out.println(name+": "+message);
                         
-                        synchronized(clientWriters){
-                            for (int i = 0; i < clientWriters.size(); i++) {
-                                clientWriters.get(i).println(message); 
-                            }
-                        }
+                        broadcast(message,name);
                     }
                 }
                 catch(IOException e){
@@ -53,14 +56,24 @@ public class Server{
                 }
                 finally{
                     synchronized(clientWriters){
-                        clientWriters.remove(out);
+                        clientWriters.remove(this);
+                        broadcast(name+"Left The chat","Server");
                     }
                     try{
                         socket.close();
                     }
-                catch(IOException e){
-                    System.out.println("Error");
+                    catch(IOException e){
+                        System.out.println("Error");
+                    }
                 }
+            }
+            private void broadcast(String message,String sender){
+                synchronized(clientWriters){
+                    for(ClientHandler client: clientWriters){
+                        if(client != this){
+                            client.out.println( sender +": "+message);
+                        }
+                    }
                 }
             }
         }
