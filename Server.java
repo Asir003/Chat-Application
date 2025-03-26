@@ -57,7 +57,7 @@ public class Server{
                 finally{
                     synchronized(clientWriters){
                         clientWriters.remove(this);
-                        broadcast(name+"Left The chat","Server");
+                        broadcast(name+" Left The chat","Server");
                     }
                     try{
                         socket.close();
@@ -72,6 +72,9 @@ public class Server{
                     for(ClientHandler client: clientWriters){
                         if(client != this){
                             client.out.println( sender +": "+message);
+                        }
+                        else{
+                            client.out.println("you: "+ message);
                         }
                     }
                 }
