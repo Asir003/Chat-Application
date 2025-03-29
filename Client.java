@@ -7,17 +7,18 @@ import java.io.*;
 
 public class Client { 
     private JFrame frame;
-    private JTextArea chatArea;
+    private JPanel chatPanel;
     private JTextField messageField;
     private JButton sendButton;
     private PrintWriter out;
     private BufferedReader in;
     private String name;
+    Box verticle=Box.createVerticalBox();
 
     public Client(){
         ConnectToServer();
         setupGUI();
-        new ReadThread(in,chatArea).start();
+        new ReadThread(in,chatPanel,this).start();
 
     }
 
@@ -44,40 +45,69 @@ public class Client {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new BorderLayout());
 
-        chatArea=new JTextArea();
-        chatArea.setEditable(false);
-        frame.add(new JScrollPane(chatArea),BorderLayout.CENTER);
+        chatPanel=new JPanel();
+        chatPanel.setLayout(new BoxLayout(chatPanel,BoxLayout.Y_AXIS));
+        //chatPanel.setLayout(new BoxLayout(chatPanel, BoxLayout.Y_AXIS));
+        //frame.add(new JScrollPane(chatArea),BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(chatPanel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        frame.add(scrollPane, BorderLayout.CENTER);
 
         JPanel panel=new JPanel(new BorderLayout());
+        //for Scrolling
         messageField=new JTextField();
         sendButton=new JButton("Send");
 
         panel.add(messageField,BorderLayout.CENTER);
         panel.add(sendButton,BorderLayout.EAST);
         frame.add(panel,BorderLayout.SOUTH);
-
+        
+        //Send message by click the button
         sendButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
                 sendMessage();
             }      
         });
 
+        //send message by pressing the enter 
         messageField.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e){
                 sendMessage();
             }
         });
-
+ 
         frame.setVisible(true);
     }
     
-
     private void sendMessage(){
             String message=messageField.getText().trim();
             if(!message.isEmpty()){
                out.println(message);
+               //displayMessage(message, true);
                 messageField.setText("");
             }
+    }
+
+    public void displayMessage(String message,boolean isUserMessage){
+        JPanel messagePanel=new JPanel();
+        messagePanel.setLayout(new FlowLayout(isUserMessage ? FlowLayout.RIGHT:FlowLayout.LEFT));
+
+        JLabel messageLabel = new JLabel("<html><p style='width: 200px;'>" + message + "</p></html>");
+        messageLabel.setOpaque(true);
+        messageLabel.setBorder(BorderFactory.createEmptyBorder(5,10,5,10));
+
+        if(isUserMessage){
+            messageLabel.setBackground(Color.CYAN);
+        }
+        else{
+            messageLabel.setBackground(Color.LIGHT_GRAY);
+        }
+
+        messagePanel.add(messageLabel);
+        verticle.add(messagePanel);
+        chatPanel.add(messagePanel);
+        chatPanel.revalidate();
+        chatPanel.repaint();
     }
 
     public static void main(String[] args){
@@ -87,11 +117,13 @@ public class Client {
 
 class ReadThread extends Thread{
     private BufferedReader in;
-    private JTextArea chatArea;
+    private JPanel chatPanel;
+    private Client client;
 
-    public ReadThread(BufferedReader in,JTextArea chatArea){
+    public ReadThread(BufferedReader in,JPanel chatPanel,Client client){
         this.in=in;
-        this.chatArea=chatArea;
+        this.chatPanel=chatPanel;
+        this.client=client;
     }
 
     public void run(){
@@ -99,8 +131,10 @@ class ReadThread extends Thread{
             String message;
             while((message = in.readLine())!=null){
                 System.out.println(message);
-                chatArea.append(message+"\n");
-                //System.out.println("You ");
+                //chatArea.append(message+"\n");
+                //displayMessage(message,true);
+                final String finalMessage=message;
+                SwingUtilities.invokeLater(() -> client.displayMessage(finalMessage, false));
             }
         }
         catch(IOException e){
