@@ -53,6 +53,7 @@ public class Client {
        
         JScrollPane scrollPane = new JScrollPane(chatPanel);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        chatPanel.add(verticle);
         frame.add(scrollPane, BorderLayout.CENTER);
 
         JPanel panel=new JPanel(new BorderLayout());
@@ -92,7 +93,7 @@ public class Client {
 
     public void displayMessage(String message,boolean isUserMessage){
         JPanel messagePanel=new JPanel();
-        messagePanel.setLayout(new FlowLayout(isUserMessage ? FlowLayout.RIGHT:FlowLayout.LEFT));
+        messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.X_AXIS));
 
         JLabel messageLabel = new JLabel("<html><p style='width: 200px;'>" + message + "</p></html>");
         messageLabel.setOpaque(true);
@@ -100,14 +101,21 @@ public class Client {
 
         if(isUserMessage){
             messageLabel.setBackground(Color.CYAN);
+            messagePanel.add(Box.createHorizontalGlue()); 
+            messagePanel.add(messageLabel);
         }
         else{
             messageLabel.setBackground(Color.LIGHT_GRAY);
+            messagePanel.add(messageLabel);
+            messagePanel.add(Box.createHorizontalGlue());
         }
 
         messagePanel.add(messageLabel);
+
         verticle.add(messagePanel);
-        chatPanel.add(messagePanel);
+        verticle.add(Box.createVerticalStrut(5));
+
+        //chatPanel.add(messagePanel);
         chatPanel.revalidate();
         chatPanel.repaint();
     }
