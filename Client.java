@@ -22,13 +22,16 @@ public class Client {
 
     }
 
+    public String getName(){
+        return name;
+    }
+
     private void ConnectToServer() {
         try {
             Socket socket = new Socket("localhost", 12346);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(socket.getOutputStream(), true);
         
-            //First Start to enter name
             name=JOptionPane.showInputDialog(in.readLine()+" ");
             out.println(name);
             
@@ -47,14 +50,13 @@ public class Client {
 
         chatPanel=new JPanel();
         chatPanel.setLayout(new BoxLayout(chatPanel,BoxLayout.Y_AXIS));
-        //chatPanel.setLayout(new BoxLayout(chatPanel, BoxLayout.Y_AXIS));
-        //frame.add(new JScrollPane(chatArea),BorderLayout.CENTER);
+       
         JScrollPane scrollPane = new JScrollPane(chatPanel);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         frame.add(scrollPane, BorderLayout.CENTER);
 
         JPanel panel=new JPanel(new BorderLayout());
-        //for Scrolling
+    
         messageField=new JTextField();
         sendButton=new JButton("Send");
 
@@ -83,7 +85,7 @@ public class Client {
             String message=messageField.getText().trim();
             if(!message.isEmpty()){
                out.println(message);
-               //displayMessage(message, true);
+               displayMessage(message, true);
                 messageField.setText("");
             }
     }
@@ -131,10 +133,9 @@ class ReadThread extends Thread{
             String message;
             while((message = in.readLine())!=null){
                 System.out.println(message);
-                //chatArea.append(message+"\n");
-                //displayMessage(message,true);
+                
                 final String finalMessage=message;
-                SwingUtilities.invokeLater(() -> client.displayMessage(finalMessage, false));
+                SwingUtilities.invokeLater(() -> client.displayMessage(finalMessage,false));
             }
         }
         catch(IOException e){

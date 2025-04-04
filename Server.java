@@ -73,9 +73,9 @@ public class Server{
                         if(client != this){
                             client.out.println( sender +": "+message);
                         }
-                        else{
-                            client.out.println("you: "+ message);
-                        }
+                        // else{
+                        //     client.out.println("you: "+ message);
+                        // }
                     }
                 }
             }
