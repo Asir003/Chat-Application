@@ -4,6 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.*;
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 public class Client { 
@@ -101,18 +103,28 @@ public class Client {
         JLabel messageLabel=new JLabel("<html><p style='width: 200px;'>" + message + "</p></html>");
         messageLabel.setOpaque(true);
         messageLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");  
+        String currentTime = sdf.format(new Date());  
+        JLabel timeLabel = new JLabel(currentTime);
+        timeLabel.setFont(new Font("Arial", Font.PLAIN, 10));  
+        timeLabel.setForeground(Color.GRAY); 
     
         if(isUserMessage){
             messageLabel.setBackground(Color.CYAN);
             messageLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+            timeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
             messagePanel.add(messageLabel, BorderLayout.EAST);
+            messagePanel.add(timeLabel, BorderLayout.SOUTH);
         } else {
             messageLabel.setBackground(Color.LIGHT_GRAY);
             messageLabel.setHorizontalAlignment(SwingConstants.LEFT);
+            timeLabel.setHorizontalAlignment(SwingConstants.LEFT);
             messagePanel.add(messageLabel, BorderLayout.WEST);
+            messagePanel.add(timeLabel, BorderLayout.SOUTH); 
         }
     
-        messagePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE,messageLabel.getPreferredSize().height + 10));
+        messagePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE,messageLabel.getPreferredSize().height +timeLabel.getPreferredSize().height+ 10));
         chatPanel.add(messagePanel);
         chatPanel.add(Box.createVerticalStrut(5));
     
