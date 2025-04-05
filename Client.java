@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.net.*;
 import java.io.*;
 
+
 public class Client { 
     private JFrame frame;
     private JPanel chatPanel;
@@ -14,6 +15,7 @@ public class Client {
     private BufferedReader in;
     private String name;
     Box verticle=Box.createVerticalBox();
+    private JScrollPane scrollPane;
 
     public Client(){
         ConnectToServer();
@@ -51,9 +53,9 @@ public class Client {
         chatPanel=new JPanel();
         chatPanel.setLayout(new BoxLayout(chatPanel,BoxLayout.Y_AXIS));
        
-        JScrollPane scrollPane = new JScrollPane(chatPanel);
+         scrollPane = new JScrollPane(chatPanel);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        chatPanel.add(verticle);
+        //chatPanel.add(verticle);
         frame.add(scrollPane, BorderLayout.CENTER);
 
         JPanel panel=new JPanel(new BorderLayout());
@@ -80,6 +82,8 @@ public class Client {
         });
  
         frame.setVisible(true);
+
+       
     }
     
     private void sendMessage(){
@@ -92,32 +96,34 @@ public class Client {
     }
 
     public void displayMessage(String message,boolean isUserMessage){
-        JPanel messagePanel=new JPanel();
-        messagePanel.setLayout(new BoxLayout(messagePanel, BoxLayout.X_AXIS));
-
-        JLabel messageLabel = new JLabel("<html><p style='width: 200px;'>" + message + "</p></html>");
+        JPanel messagePanel=new JPanel(new BorderLayout());
+        
+        JLabel messageLabel=new JLabel("<html><p style='width: 200px;'>" + message + "</p></html>");
         messageLabel.setOpaque(true);
-        messageLabel.setBorder(BorderFactory.createEmptyBorder(5,10,5,10));
-
+        messageLabel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+    
         if(isUserMessage){
             messageLabel.setBackground(Color.CYAN);
-            messagePanel.add(Box.createHorizontalGlue()); 
-            messagePanel.add(messageLabel);
-        }
-        else{
+            messageLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+            messagePanel.add(messageLabel, BorderLayout.EAST);
+        } else {
             messageLabel.setBackground(Color.LIGHT_GRAY);
-            messagePanel.add(messageLabel);
-            messagePanel.add(Box.createHorizontalGlue());
+            messageLabel.setHorizontalAlignment(SwingConstants.LEFT);
+            messagePanel.add(messageLabel, BorderLayout.WEST);
         }
-
-        messagePanel.add(messageLabel);
-
-        verticle.add(messagePanel);
-        verticle.add(Box.createVerticalStrut(5));
-
-        //chatPanel.add(messagePanel);
+    
+        messagePanel.setMaximumSize(new Dimension(Integer.MAX_VALUE,messageLabel.getPreferredSize().height + 10));
+        chatPanel.add(messagePanel);
+        chatPanel.add(Box.createVerticalStrut(5));
+    
         chatPanel.revalidate();
         chatPanel.repaint();
+    
+        SwingUtilities.invokeLater(() -> {
+            JScrollBar vertical = scrollPane.getVerticalScrollBar();
+            vertical.setValue(vertical.getMaximum());
+        });
+
     }
 
     public static void main(String[] args){
