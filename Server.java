@@ -46,9 +46,13 @@ public class Server{
 
                     String message;
                     while ((message=in.readLine())!=null) {
+                        if(message.equalsIgnoreCase("@users")){
+                            sendUserList();
+                        }
+                        else{
                         System.out.println(name+": "+message);
-                        
                         broadcast(message,name);
+                        }
                     }
                 }
                 catch(IOException e){
@@ -67,15 +71,26 @@ public class Server{
                     }
                 }
             }
+            private void sendUserList(){
+                StringBuilder sb=new StringBuilder("[");
+                synchronized(clientWriters){
+                    for(int i=0;i<clientWriters.size();i++){
+                        ClientHandler client =clientWriters.get(i);
+                        sb.append(client.name);
+                        if(i<clientWriters.size()-1){
+                            sb.append(",");
+                        }
+                    }
+                    sb.append("]");
+                    out.println(sb.toString());
+                }
+            }
             private void broadcast(String message,String sender){
                 synchronized(clientWriters){
                     for(ClientHandler client: clientWriters){
                         if(client != this){
                             client.out.println( sender +": "+message);
                         }
-                        // else{
-                        //     client.out.println("you: "+ message);
-                        // }
                     }
                 }
             }

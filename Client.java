@@ -18,10 +18,15 @@ public class Client {
     private String name;
     Box verticle=Box.createVerticalBox();
     private JScrollPane scrollPane;
+    private JButton usersButton;
+    private JPanel onlineUsersPanel;
+    private JTextArea onlineUsersTextArea;
+    private boolean isOnlinePanelVisible = false;
 
     public Client(){
         ConnectToServer();
         setupGUI();
+        initializeUI();
         new ReadThread(in,chatPanel,this).start();
 
     }
@@ -57,14 +62,14 @@ public class Client {
        
          scrollPane = new JScrollPane(chatPanel);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        //chatPanel.add(verticle);
         frame.add(scrollPane, BorderLayout.CENTER);
 
         JPanel panel=new JPanel(new BorderLayout());
-    
         messageField=new JTextField();
         sendButton=new JButton("Send");
+        usersButton=new JButton("Online Users");
 
+        panel.add(usersButton,BorderLayout.WEST);
         panel.add(messageField,BorderLayout.CENTER);
         panel.add(sendButton,BorderLayout.EAST);
         frame.add(panel,BorderLayout.SOUTH);
@@ -82,6 +87,11 @@ public class Client {
                 sendMessage();
             }
         });
+
+        usersButton.addActionListener(e -> {
+            requestOnlineUsers();
+            showOnlinePanel(); 
+        });
  
         frame.setVisible(true);
 
@@ -97,7 +107,54 @@ public class Client {
             }
     }
 
+    private void requestOnlineUsers(){
+        out.println("@users");
+    }
+
+    public void initializeUI() { 
+        
+        onlineUsersPanel = new JPanel(new BorderLayout());
+        onlineUsersTextArea = new JTextArea(10, 20);
+        onlineUsersTextArea.setEditable(false);
+        onlineUsersTextArea.setBorder(BorderFactory.createTitledBorder("Online Users"));
+    
+        JButton closeButton = new JButton("X");
+        closeButton.addActionListener(e -> hideOnlinePanel());
+        
+        onlineUsersPanel.add(new JScrollPane(onlineUsersTextArea), BorderLayout.CENTER);
+        onlineUsersPanel.add(closeButton, BorderLayout.NORTH);
+        
+       
+        frame.add(onlineUsersPanel, BorderLayout.EAST); 
+        onlineUsersPanel.setVisible(false);
+        
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    private void showOnlinePanel() {
+        isOnlinePanelVisible = true;
+        onlineUsersPanel.setVisible(true);
+        frame.revalidate();
+        frame.repaint();
+    }
+
+    private void hideOnlinePanel() {
+        isOnlinePanelVisible = false;
+        onlineUsersPanel.setVisible(false);
+        frame.revalidate();
+        frame.repaint();
+    }
+    
+   
+
     public void displayMessage(String message,boolean isUserMessage){
+        if (message.startsWith("[") && message.endsWith("]") && !isUserMessage) {
+            String userList = message.replaceAll("[\\[\\]]", "").replace(",", "\n");
+            onlineUsersTextArea.setText("Online Users:\n" + userList); 
+            return; 
+        }
+
         JPanel messagePanel=new JPanel(new BorderLayout());
         
         JLabel messageLabel=new JLabel("<html><p style='width: 200px;'>" + message + "</p></html>");
